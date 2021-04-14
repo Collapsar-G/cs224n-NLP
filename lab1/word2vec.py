@@ -62,13 +62,13 @@ def naiveSoftmaxLossAndGradient(
     ### This numerically stable implementation helps you avoid issues pertaining
     ### to integer overflow. 
 
-    dot_products = np.matmul(outsideVectors, centerWordVec)  # (vocab_size,1)
-    probability = softmax(dot_products)  # (vocab_size,1)  y_hat
+    dotproducts = np.matmul(outsideVectors, centerWordVec)  # (vocab_size,1)
+    probability = softmax(dotproducts)  # (vocab_size,1)  y_hat
     loss = -np.log(probability[outsideWordIdx])
-    ddot_products = probability.copy()  # (vocab_size,1)
-    ddot_products[outsideWordIdx] = ddot_products[outsideWordIdx] - 1  # y_hat minus y
-    gradCenterVec = np.matmul(outsideVectors.T, ddot_products)  # (embedding_dim,1)
-    gradOutsideVecs = np.outer(ddot_products, centerWordVec)  # (vocab_size,embedding_dim)
+    ddotproducts = probability.copy()  # (vocab_size,1)
+    ddotproducts[outsideWordIdx] = ddotproducts[outsideWordIdx] - 1  # y_hat minus y
+    gradCenterVec = np.matmul(outsideVectors.T, ddotproducts)  # (embedding_dim,1)
+    gradOutsideVecs = np.outer(ddotproducts, centerWordVec)  # (vocab_size,embedding_dim)
 
     ### END YOUR CODE
 
@@ -119,20 +119,18 @@ def negSamplingLossAndGradient(
     gradOutsideVecs = np.zeros(outsideVectors.shape)
 
     u_o = outsideVectors[outsideWordIdx]
-    sig = sigmoid(np.dot(u_o, centerWordVec))
-    loss = -np.log(sig)
-    gradCenterVec = u_o * (sig - 1)
-    gradOutsideVecs[outsideWordIdx] = centerWordVec * (sig - 1)
+    sigm = sigmoid(np.dot(u_o, centerWordVec))
+    loss = -np.log(sigm)
+    gradCenterVec = u_o * (sigm - 1)
+    gradOutsideVecs[outsideWordIdx] = centerWordVec * (sigm - 1)
 
     for i in range(K):
-        neg_id = indices[i + 1]
-        u_k = outsideVectors[neg_id]
+        negid = indices[i + 1]
+        u_k = outsideVectors[negid]
         sig = sigmoid(-np.dot(u_k, centerWordVec))
         loss -= np.log(sig)
         gradCenterVec += u_k * (1 - sig)
-        gradOutsideVecs[neg_id] += centerWordVec * (1 - sig)
-
-
+        gradOutsideVecs[negid] += centerWordVec * (1 - sig)
 
     ### END YOUR CODE
 
